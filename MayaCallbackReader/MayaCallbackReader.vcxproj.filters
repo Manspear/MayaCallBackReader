@@ -23,5 +23,8 @@
     <ClInclude Include="MayaIncludes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HelloWorldCmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
