@@ -39,7 +39,7 @@ EXPORT MStatus uninitializePlugin(MObject obj)
 	return MS::kSuccess;
 }
 
-int awesomeFunction()
-{
-	return 69;
-}
+//int awesomeFunction()
+//{
+//	return 69;
+//}
