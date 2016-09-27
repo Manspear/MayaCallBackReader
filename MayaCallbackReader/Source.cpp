@@ -16,24 +16,76 @@ MStatus HelloWorld::doIt(const MArgList& argList)
 	return MS::kSuccess;
 };
 
+void onNodeAttrChange(MNodeMessage::AttributeMessage msg, MPlug &plug, MPlug &otherPlug, void *clientData)
+{
+    //MGlobal::displayInfo("Node name changed to: " + MFnDependencyNode(node).name());
+    MGlobal::displayInfo("Node attribute changed!");
+    if (msg == MNodeMessage::AttributeMessage::kAttributeRenamed)
+    {
+        MGlobal::displayInfo("RenameInfo: " + plug.info());
+    }
+}
+
 void onNodeCreate(MObject& node, void *clientData)
 {
-	
-	//if(node.hasFn(MFn::kTransform))
-	//	MFnTransform transMFn(node);
-	//MFnDagNode dagMFn(node);
-	//MDagPath lol;
-	//MStatus res;
-	//lol = MDagPath::getAPathTo(node, &res);
-	//
-	//if(res.kSuccess)
-	//	const MString talihu = lol.fullPathName(&res);
-	//if (res.kSuccess)
-	//{
-	//	MGlobal::displayInfo(talihu);
-	//}
-	////dagMFn.getPath()
-	MGlobal::displayInfo(MFnDependencyNode(node).name() + "Allahu");
+    MStatus res;
+    //MFnMesh mesh(node, &res);
+    MFnMesh meshFn(node, &res);
+    if (res == MStatus::kSuccess)
+    {
+        MGlobal::displayInfo("CREATE: Mesh name: " + meshFn.name());
+
+        //MCallbackId id = MNodeMessage::addAttributeChangedCallback(node, onNodeAttrChange, NULL, &res);
+        //if (res == MStatus::kSuccess)
+        //    ids.append(id);
+    }
+    else
+    {
+        MFnDagNode dagFn(node, &res);
+        if (res = MStatus::kSuccess)
+        {
+            MGlobal::displayInfo("CREATE: Node name: " + dagFn.name() + " Node type: " + node.apiTypeStr());
+        }
+    }
+
+   /* if (node.hasFn(MFn::kTransform))
+    {
+        MGlobal::displayInfo("Node transform: " + MFnTransform(node).name());
+
+        MCallbackId id = MNodeMessage::addAttributeChangedCallback(node, onNodeAttrChange, NULL, &res);
+        if (res == MStatus::kSuccess)
+            ids.append(id);
+    }*/
+	//MGlobal::displayInfo("A node was created: " + MFnDependencyNode(node).name());
+}
+
+void onNodeNameChange(MObject &node, const MString &str, void *clientData)
+{
+    MStatus res = MStatus::kSuccess;
+
+    MFnTransform transFn(node, &res);
+    if (res == MStatus::kSuccess)
+    {
+        MGlobal::displayInfo("NEW NAME: New transform node name: " + transFn.name() + " Node Type: " + node.apiTypeStr());
+    }
+    else
+    {
+        MFnMesh meshFn(node, &res);
+
+        if (res == MStatus::kSuccess)
+        {
+            MGlobal::displayInfo("NEW NAME: New mesh node name: " + meshFn.name() + " Node Type: " + node.apiTypeStr());
+        }
+        else
+        {
+            MFnDagNode dagFn(node, &res);
+            if (res == MStatus::kSuccess)
+            {
+                //MFnDagNode dagFn(node);
+                MGlobal::displayInfo("NEW NAME: New node name: " + dagFn.name() + " Node Type: " + node.apiTypeStr());
+            }
+        }
+    }
 }
 
 // called when the plugin is loaded
@@ -48,20 +100,28 @@ EXPORT MStatus initializePlugin(MObject obj)
 	}
 	MStatus status = myPlugin.registerCommand("helloWorld", HelloWorld::creator);
 	CHECK_MSTATUS_AND_RETURN_IT(status);
-	
+    
 	MGlobal::displayInfo("Maya plugin loaded!");
 	// if res == kSuccess then the plugin has been loaded,
 	// otherwise it has not.
-
+   
 	MCallbackId temp;
 	temp = MDGMessage::addNodeAddedCallback(onNodeCreate,
-		"dependNode",
+		kDefaultNodeType,
 		NULL,
 		&res
 	);
-	if (res.kSuccess)
-		ids.append(temp);
-
+    if (res == MS::kSuccess)
+    {
+        MGlobal::displayInfo("nodeAdded success!");
+        ids.append(temp);
+    }
+    temp = MNodeMessage::addNameChangedCallback(MObject::kNullObj, onNodeNameChange, NULL, &res);
+    if (res == MStatus::kSuccess)
+    {
+        MGlobal::displayInfo("nameChange success!");
+        ids.append(temp);
+    }
 	return res;
 }
 
