@@ -6,6 +6,9 @@
 #define REQUIRE_IOSTREAM
 #define EXPORT __declspec(dllexport)
 
+/*Manually added!*/
+#include <maya/MFnAttribute.h>
+/*Franco includes begin!*/
 #include <maya/MFnPlugin.h>
 #include <maya/MFnMesh.h>
 #include <maya/MFnTransform.h>
